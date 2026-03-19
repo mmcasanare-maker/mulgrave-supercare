@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperCare Tracker — Mulgrave Dental Group</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F7F3EE;color:#1A1A18;font-size:13px;min-height:100vh;padding:1.5rem}
+.app{max-width:1300px;margin:0 auto}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.app-title{font-size:18px;font-weight:700;color:#1A1A18}
+.app-sub{font-size:12px;color:#6B6B68;margin-top:2px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font-size:12px;padding:5px 14px;height:32px;border-radius:6px;border:1px solid #D0CCC6;background:#fff;color:#1A1A18;cursor:pointer;white-space:nowrap;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:#F0EDE8}
+.btn-blue{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-blue:hover{background:#0C447C}
+.btn-green{background:#3B6D11;color:#fff;border-color:#3B6D11}
+.btn-green:hover{background:#27500A}
+.btn-red{background:#FCEBEB;color:#791F1F;border-color:#F09595}
+.btn-red:hover{background:#F7C1C1}
+.btn-sm{font-size:11px;padding:3px 10px;height:24px}
+.btn-notify{background:#854F0B;color:#FAEEDA;border-color:#EF9F27}
+.btn-notify:hover{background:#633806}
+select,input,textarea{font-family:inherit}
+.filters{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+select{font-size:12px;padding:4px 8px;height:30px;border-radius:6px;border:1px solid #D0CCC6;background:#fff;color:#1A1A18}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:1rem}
+.stat{background:#fff;border-radius:8px;padding:12px 14px;border:1px solid #E8E4DF}
+.stat-label{font-size:11px;color:#6B6B68;margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:700;color:#1A1A18}
+.reminder-banner{background:#FEF3CD;border:1px solid #F5C518;border-radius:8px;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#7A5C00;display:none}
+/* Kanban — 6 columns */
+.kanban{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:1rem;overflow-x:auto}
+.col{background:#EEEBE6;border-radius:10px;padding:8px;min-height:120px;min-width:160px}
+.col-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.col-label{font-size:10px;font-weight:700;color:#6B6B68;text-transform:uppercase;letter-spacing:.4px;line-height:1.3}
+.col-count{font-size:11px;background:#fff;border-radius:10px;padding:1px 7px;color:#6B6B68;border:1px solid #D0CCC6;flex-shrink:0}
+.col-submitted .col-label{color:#185FA5}
+.col-pending .col-label{color:#854F0B}
+.col-review .col-label{color:#7F77DD}
+.col-approved .col-label{color:#3B6D11}
+.col-rejected .col-label{color:#A32D2D}
+.col-monitoring .col-label{color:#7F77DD}
+.col-preop .col-label{color:#7F77DD}
+.col-booked .col-label{color:#0F6E56}
+.card{background:#fff;border:1px solid #E8E4DF;border-radius:8px;padding:9px 10px;margin-bottom:6px;cursor:pointer;transition:box-shadow .15s}
+.card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card-name{font-weight:700;font-size:12px;color:#1A1A18;margin-bottom:4px}
+.card-meta{font-size:11px;color:#6B6B68;display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:4px}
+.badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-ga{background:#EEEDFE;color:#3C3489}
+.badge-std{background:#E1F5EE;color:#085041}
+.badge-overdue{background:#FCEBEB;color:#791F1F}
+.avatar{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:700;color:#fff;flex-shrink:0}
+.avatars-row{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+.progress-bar{height:3px;background:#E8E4DF;border-radius:2px;margin:5px 0 2px}
+.progress-fill{height:3px;background:#185FA5;border-radius:2px;transition:width .3s}
+.list-view{display:none}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 12px;font-size:11px;font-weight:700;color:#6B6B68;border-bottom:1px solid #E8E4DF;background:#F7F3EE;text-transform:uppercase;letter-spacing:.4px}
+td{padding:9px 12px;border-bottom:1px solid #E8E4DF;color:#1A1A18;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.list-wrap{background:#fff;border:1px solid #E8E4DF;border-radius:10px;overflow:hidden}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:100;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+.modal{background:#fff;border-radius:12px;border:1px solid #E8E4DF;padding:1.5rem;width:100%;max-width:640px;margin:auto}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:1rem;color:#1A1A18}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-group{margin-bottom:10px;display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;color:#6B6B68;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.form-group input,.form-group select,.form-group textarea{font-size:13px;padding:7px 10px;border-radius:6px;border:1px solid #D0CCC6;background:#fff;color:#1A1A18;font-family:inherit;outline:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#185FA5}
+.form-group textarea{height:64px;resize:vertical}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
+hr{border:none;border-top:1px solid #F0EDE8;margin:12px 0}
+/* Task blocks */
+.task-block{background:#F7F3EE;border:1px solid #E8E4DF;border-radius:8px;margin-bottom:8px;overflow:hidden}
+.task-header{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;gap:8px;user-select:none}
+.task-header:hover{background:#F0EDE8}
+.task-title-row{display:flex;align-items:center;gap:7px;flex:1;min-width:0}
+.task-num{font-size:10px;color:#6B6B68;flex-shrink:0;min-width:18px;font-weight:600}
+.task-title{font-size:12px;font-weight:600;color:#1A1A18;flex:1;min-width:0}
+.task-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.task-prog-txt{font-size:10px;color:#6B6B68;white-space:nowrap}
+.task-chevron{font-size:10px;color:#6B6B68;transition:transform .2s}
+.task-chevron.open{transform:rotate(180deg)}
+.task-body{display:none;padding:0 12px 12px}
+.task-body.open{display:block}
+/* Assignee row inside task */
+.assignee-row{display:flex;gap:4px;align-items:center;margin-bottom:10px;flex-wrap:wrap;padding-top:8px}
+.user-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;background:#E6F1FB;border:1px solid #B5D4F4;font-size:11px;color:#0C447C}
+.user-chip .rm{cursor:pointer;color:#378ADD;background:none;border:none;font-size:13px;padding:0;line-height:1;font-family:inherit}
+.user-chip .rm:hover{color:#A32D2D}
+/* Checklist */
+.check-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #EEEBE6;font-size:12px;color:#1A1A18}
+.check-item:last-child{border-bottom:none}
+.check-item input[type=checkbox]{margin-top:2px;cursor:pointer;flex-shrink:0;accent-color:#185FA5}
+.check-item.done span{text-decoration:line-through;color:#A0A09D}
+/* Task notes */
+.task-notes-section{margin-top:10px;border-top:1px solid #EEEBE6;padding-top:10px}
+.task-notes-head{font-size:11px;font-weight:700;color:#6B6B68;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.note-entry{background:#fff;border:1px solid #E8E4DF;border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:12px}
+.note-meta{font-size:10px;color:#A0A09D;margin-bottom:3px}
+.note-text{color:#1A1A18;line-height:1.55}
+.note-add-row{display:flex;gap:6px;margin-top:6px}
+.note-add-row textarea{flex:1;font-size:12px;padding:6px 8px;border-radius:6px;border:1px solid #D0CCC6;resize:none;height:36px;font-family:inherit;outline:none}
+.note-add-row textarea:focus{border-color:#185FA5}
+/* Patient header meta */
+.detail-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;font-size:12px}
+.detail-meta span{color:#6B6B68}
+.detail-meta strong{color:#1A1A18}
+/* Email templates */
+.email-tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.etab{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid #D0CCC6;background:#F7F3EE;cursor:pointer;color:#6B6B68;font-family:inherit}
+.etab.active{background:#185FA5;color:#fff;border-color:#185FA5}
+.email-subject-line{font-size:11px;color:#6B6B68;margin-bottom:6px;padding:6px 10px;background:#EEEBE6;border-radius:6px}
+.email-preview{background:#F7F3EE;border-radius:8px;padding:12px 14px;font-size:12px;color:#1A1A18;white-space:pre-wrap;line-height:1.65;border:1px solid #E8E4DF;max-height:180px;overflow-y:auto}
+/* Notifications */
+.notif-badge-wrap{position:relative}
+.notif-count{position:absolute;top:-6px;right:-8px;background:#E24B4A;color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;display:none}
+.notif-panel{position:absolute;top:40px;right:0;width:310px;background:#fff;border:1px solid #E8E4DF;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:200;max-height:380px;overflow-y:auto;display:none}
+.notif-header{padding:10px 14px;border-bottom:1px solid #E8E4DF;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700}
+.notif-item{padding:9px 14px;border-bottom:1px solid #F0EDE8;font-size:12px;display:flex;gap:8px;align-items:flex-start}
+.notif-item:last-child{border-bottom:none}
+.notif-item.unread{background:#F0F6FF}
+.notif-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.notif-text{flex:1;color:#1A1A18;line-height:1.5}
+.notif-time{font-size:10px;color:#A0A09D;white-space:nowrap}
+.notif-empty{padding:1.5rem;text-align:center;color:#6B6B68;font-size:12px}
+.section-head{font-size:12px;font-weight:700;color:#1A1A18;margin-bottom:8px}
+.main-tabs{display:flex;gap:0;margin-bottom:1.25rem;border-bottom:2px solid #E8E4DF}
+.main-tab{font-size:13px;font-weight:600;padding:8px 18px;cursor:pointer;color:#6B6B68;border-bottom:2px solid transparent;margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:color .15s}
+.main-tab:hover{color:#1A1A18}
+.main-tab.active{color:#185FA5;border-bottom-color:#185FA5}
+.atm-view{display:none}
+.atm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.atm-sections{display:flex;flex-direction:column;gap:1.25rem}
+.atm-section-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.atm-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.atm-section-count{font-size:11px;padding:1px 8px;border-radius:10px;font-weight:600}
+.atm-overdue .atm-section-title{color:#A32D2D}
+.atm-overdue .atm-section-count{background:#FCEBEB;color:#791F1F}
+.atm-today .atm-section-title{color:#854F0B}
+.atm-today .atm-section-count{background:#FAEEDA;color:#633806}
+.atm-completed .atm-section-title{color:#3B6D11}
+.atm-completed .atm-section-count{background:#EAF3DE;color:#27500A}
+.atm-empty{font-size:12px;color:#A0A09D;padding:10px 0}
+.atm-task-card{background:#fff;border:1px solid #E8E4DF;border-radius:8px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:flex-start;gap:12px}
+.atm-task-card.overdue{border-left:3px solid #E24B4A}
+.atm-task-card.today{border-left:3px solid #EF9F27}
+.atm-task-card.completed{border-left:3px solid #639922;opacity:.8}
+.atm-task-info{flex:1;min-width:0}
+.atm-task-title{font-size:12px;font-weight:600;color:#1A1A18;margin-bottom:3px}
+.atm-task-patient{font-size:11px;color:#6B6B68;margin-bottom:4px}
+.atm-task-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+@media(max-width:900px){.kanban{grid-template-columns:repeat(3,minmax(160px,1fr))}}
+@media(max-width:600px){.kanban{grid-template-columns:repeat(2,minmax(150px,1fr))}.stats{grid-template-columns:repeat(2,1fr)}body{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="app-title">SuperCare Application Tracker</div>
+      <div class="app-sub">Mulgrave Dental Group — SOP v1.0</div>
+    </div>
+    <div class="top-actions">
+      <button class="btn btn-green" id="exportCsv">⬇ Export CSV</button>
+      <button class="btn" id="reportBtn" style="background:#7F77DD;color:#fff;border-color:#7F77DD">📋 Report</button>
+      <button class="btn" id="manageUsers">👤 Users</button>
+      <div class="notif-badge-wrap">
+        <button class="btn" id="notifBtn">🔔 Notifications<span class="notif-count" id="notifCount">0</span></button>
+        <div class="notif-panel" id="notifPanel"></div>
+      </div>
+      <button class="btn" id="toggleView">List view</button>
+      <button class="btn btn-blue" id="openAdd">+ New patient</button>
+    </div>
+  </div>
+
+  <div id="reminders" class="reminder-banner"></div>
+  <div class="stats" id="statsRow"></div>
+
+  <!-- Main tabs -->
+  <div class="main-tabs">
+    <button class="main-tab active" id="tabAll" onclick="switchTab('all')">All patients</button>
+    <button class="main-tab" id="tabAtm" onclick="switchTab('atm')">Watching</button>
+  </div>
+
+  <!-- All patients view -->
+  <div id="allView">
+    <div class="filters">
+      <select id="filterType"><option value="">All types</option><option>Standard</option><option>GA</option></select>
+      <select id="filterStatus"><option value="">All statuses</option><option>Application Submitted</option><option>Documents Pending</option><option>Under Review</option><option>Monitoring</option><option>Approved</option><option>Pre-Op Surgery</option><option>Rejected</option><option>Treatment Booked</option></select>
+      <select id="filterAssignee"><option value="">All watchers</option></select>
+    </div>
+    <div id="kanban" class="kanban"></div>
+    <div id="listView" class="list-view">
+      <div class="list-wrap">
+        <table><thead><tr><th>Patient</th><th>Type</th><th>Value</th><th>Status</th><th>Watchers</th><th>Follow-up</th><th>Progress</th><th></th></tr></thead>
+        <tbody id="listBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assigned to me view -->
+  <div id="atmView" class="atm-view">
+    <div class="atm-header">
+      <div style="font-size:13px;color:#6B6B68">Viewing tasks watched by: <strong id="atmUserName">—</strong></div>
+      <select id="atmUserSelect" style="font-size:12px;height:30px" onchange="switchAtmUser(this.value)"></select>
+    </div>
+    <div class="atm-sections">
+      <div class="atm-section atm-overdue">
+        <div class="atm-section-head">
+          <span class="atm-section-title">Past due</span>
+          <span class="atm-section-count" id="atmOverdueCount">0</span>
+        </div>
+        <div id="atmOverdue"></div>
+      </div>
+      <div class="atm-section atm-today">
+        <div class="atm-section-head">
+          <span class="atm-section-title">Due today</span>
+          <span class="atm-section-count" id="atmTodayCount">0</span>
+        </div>
+        <div id="atmToday"></div>
+      </div>
+      <div class="atm-section atm-completed">
+        <div class="atm-section-head">
+          <span class="atm-section-title">Completed tasks</span>
+          <span class="atm-section-count" id="atmCompletedCount">0</span>
+        </div>
+        <div id="atmCompleted"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalBox"></div></div>
+
+<script>
+// ── COLORS & UTILS ─────────────────────────────────────────────────────────
+const AC=['#185FA5','#3B6D11','#854F0B','#7F77DD','#0F6E56','#993556','#A32D2D','#1D9E75'];
+function aClr(n){let h=0;for(let c of n)h=(h*31+c.charCodeAt(0))%AC.length;return AC[h];}
+function ini(n){return n.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+function av(u,s=20){return`<span class="avatar" style="background:${aClr(u.name)};width:${s}px;height:${s}px;font-size:${Math.round(s*.44)}px" title="${u.name}">${ini(u.name)}</span>`;}
+function today(){return new Date().toISOString().split('T')[0]}
+function now(){return new Date().toLocaleString('en-AU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}
+function fd(d){if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0].slice(2)}`}
+function isOD(d){return d&&d<today()}
+function du(d){if(!d)return null;return Math.round((new Date(d)-new Date(today()))/(864e5))}
+function timeAgo(d){const s=Math.round((Date.now()-new Date(d))/(1000));if(s<60)return'Just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+
+// ── USERS ──────────────────────────────────────────────────────────────────
+let users=[
+  {id:'u1',name:'Receptionist',email:'reception@mulgrave.com.au',role:'Receptionist'},
+  {id:'u2',name:'Treatment Coordinator',email:'tc@mulgrave.com.au',role:'TC'},
+  {id:'u3',name:'Dentist',email:'dentist@mulgrave.com.au',role:'Dentist'},
+  {id:'u4',name:'Izza',email:'izza@mulgrave.com.au',role:'Operations'},
+];
+let nextUid=5;
+
+// ── SOP TASKS ──────────────────────────────────────────────────────────────
+const T_STD=[
+  {id:'s1',title:'Confirm patient eligibility',owner:'Receptionist',checks:['Confirm patient cannot self-fund treatment','Confirm patient interest in SuperCare','Explain the SuperCare process and 4–6 week timeline','Confirm and verify patient contact details']},
+  {id:'s2',title:'Collect required documents',owner:'Receptionist',checks:['Export itemized treatment plan PDF from Corepractice','Obtain doctor support letter for ATO','Confirm treatment value matches across all documents','Confirm patient details correct on all documents']},
+  {id:'s3',title:'Submit SuperCare referral',owner:'Receptionist',checks:['Log in to SuperCare portal','Enter all applicant details accurately','Upload itemized treatment plan PDF','Upload doctor support letter','Review all details before submitting','Submit form and save confirmation reference number']},
+  {id:'s4',title:'Update patient record in Corepractice',owner:'Receptionist',checks:['Add note: "Payable by way of clinic payment"','Attach all uploaded documents to patient file','Record and confirm the submission date']},
+  {id:'s5',title:'Move patient to Super Board (MS Teams)',owner:'Receptionist',checks:['Open MS Teams — Early Release of Super channel','Create a new patient card','Add patient name, treatment value, submission date','Set status to: Application Submitted']},
+  {id:'s6',title:'Create TC follow-up task',owner:'Receptionist',checks:['Create new task in Corepractice','Assign task to Treatment Coordinator','Set due date to +14 days from submission','Attach all relevant documents','Add note with SuperCare confirmation number']},
+  {id:'s7',title:'Monitor application status',owner:'TC',checks:['Review Super board every week','Check email for updates from SuperCare','Contact SuperCare if no update after 3 weeks','Update patient board status in MS Teams','Communicate status updates to patient']},
+  {id:'s8',title:'Book treatment after approval',owner:'Receptionist',checks:['Confirm SuperCare approval and amount','Call patient within 24 hours of approval','Book treatment appointment in Corepractice','Confirm payment via SuperCare','Update MS Teams board to: Treatment Booked']},
+];
+const T_GA=[
+  {id:'g1',title:'Confirm patient eligibility (GA)',owner:'Receptionist',checks:['Confirm patient cannot self-fund treatment','Confirm patient interest in SuperCare','Confirm procedure requires General Anesthesia','Verify patient contact details','Inform patient of extended GA documentation requirements']},
+  {id:'g2',title:'Confirm GA treatment plan',owner:'TC',checks:['Dentist confirms GA is medically required','Confirm treatment plan includes all procedure codes','Confirm hospital fees are included','Confirm anesthetist fee estimate is included','Export and save itemized treatment plan PDF']},
+  {id:'g3',title:'Collect required GA documents',owner:'Receptionist',checks:['Collect itemized treatment plan PDF','Obtain doctor support letter for ATO','Obtain GA medical necessity statement from Dentist','Collect hospital quote','Collect anesthetist quote','Confirm all documents are complete']},
+  {id:'g4',title:'Submit SuperCare referral (GA)',owner:'Receptionist',checks:['Log in to SuperCare portal','Enter all patient details accurately','Upload itemized treatment plan','Upload doctor support letter','Upload GA medical necessity documentation','Upload hospital and/or anesthetist quotes','Review all details before submitting','Submit referral and save confirmation reference number']},
+  {id:'g5',title:'Update patient record (GA)',owner:'Receptionist',checks:['Add note: "SuperCare — GA case — Payable by clinic payment"','Attach all submitted documents to patient file','Record and confirm submission date']},
+  {id:'g6',title:'Add to SuperCare tracking board',owner:'Receptionist',checks:['Open MS Teams — Early Release of Super channel','Create new patient card','Add patient name, treatment value, submission date','Add tag: GA Case','Set status to: Application Submitted']},
+  {id:'g7',title:'Create follow-up task (GA)',owner:'Receptionist',checks:['Create new task in Corepractice','Assign to Treatment Coordinator','Set due date to +14 days from submission','Attach all relevant documents','Include SuperCare confirmation reference in notes']},
+  {id:'g8',title:'Monitor application status (GA)',owner:'TC',checks:['Check application progress weekly on MS Teams','Monitor emails from SuperCare','Contact SuperCare if no update after 3 weeks','Update patient board status in MS Teams','Communicate status to patient as needed']},
+  {id:'g9',title:'Schedule hospital & GA booking',owner:'TC',checks:['Confirm SuperCare approval amount','Contact hospital booking coordinator','Confirm anesthetist availability','Confirm surgery duration with clinical team','Document all confirmed details']},
+  {id:'g10',title:'Book patient treatment (GA)',owner:'Receptionist',checks:['Contact patient within 24 hours of approval','Confirm GA surgery date with patient','Send pre-operative instructions to patient','Confirm payment via SuperCare','Book appointment in Corepractice','Update MS Teams board to: Treatment Booked']},
+  // ── PRE-SURGICAL CLEARANCE (MDG-OPS-002) ──────────────────────────────────
+  {id:'ga1',title:'Phase A1-A2 — Deposit & GP summary form',owner:'Receptionist',checks:['Collect $1,000 deposit from patient in CorePractice','Provide patient with GP Summary form to complete and sign']},
+  {id:'ga2',title:'Phase A3 — Email GP summary request',owner:'Receptionist',checks:['Email signed GP Summary Request to patient\'s GP','CC Izza on the GP email']},
+  {id:'ga3',title:'Phase A4 — Issue blood test slip',owner:'Receptionist',checks:['Confirm if blood test is required (procedure >4hrs OR patient >50yrs)','Issue blood test slip to patient if applicable']},
+  {id:'ga4',title:'Phase A5 — Enter patient into NAAS spreadsheet',owner:'Receptionist',checks:['Enter patient name into NAAS Spreadsheet','Add contact number and email (no Yahoo addresses)','Add length of procedure','Add procedure date']},
+  {id:'ga5',title:'Phase B — GP health summary follow-up',owner:'Izza',checks:['Follow up with GP via email and phone to obtain health summary','Forward health summary to NAAS within 48 hours of receipt','Update NAAS Spreadsheet to reflect health summary received and forwarded']},
+  {id:'ga6',title:'Phase C — NAAS medical history link',owner:'Izza',checks:['Confirm NAAS has sent medical history link to patient (Column M)','Check patient has completed the NAAS medical history link (Column N)','If not completed within 1 week: send SMS reminder via CorePractice','If not completed within 1 week: send email reminder to patient','If still not completed: alert Dr. Diluni and Front Desk to call patient']},
+  {id:'ga7',title:'Phase D — Blood test follow-up',owner:'Izza',checks:['Check Column Q of NAAS Spreadsheet to confirm blood test is completed','If not done: send patient SMS reminder via CorePractice','If not done: send patient email reminder','If not done: set follow-up task for Front Desk to call patient']},
+  {id:'ga8',title:'Phase E1-E3 — Additional tests & clearance',owner:'Izza',checks:['Check Column U of NAAS Spreadsheet for any additional tests required (e.g. cardiac)','If additional tests required: confirm with NAAS when tests are booked','After all tests completed: follow up with NAAS for final clearance (Columns W and X)']},
+  {id:'ga9',title:'Phase E4-E5 — Fit for surgery confirmation',owner:'Izza',checks:['Once NAAS confirms patient is fit for surgery: email confirmation to Reception','Include any special pre-operative instructions from Column V in the email','In CorePractice: add code "Fit for Surgery" to patient file','Add all special pre-operative instructions from Column V into patient file notes']},
+];
+
+function getTasks(p){return p.type==='GA'?T_GA:T_STD;}
+function mkChecks(tasks){return tasks.map(t=>new Array(t.checks.length).fill(false));}
+function mkAssignees(tasks){return tasks.map(t=>{const u=users.find(x=>x.role===t.owner||x.name===t.owner);return u?[u.id]:[];});}
+function mkNotes(tasks){return tasks.map(()=>[]);}
+function mkDueDates(tasks){return tasks.map(t=>new Array(t.checks.length).fill(''));}
+function mkCkWatchers(tasks){return tasks.map(t=>t.checks.map(()=>[]));} // [ti][ci] = [uid,...]
+function mkCkNotes(tasks){return tasks.map(t=>t.checks.map(()=>[]));} // [ti][ci] = [{text,author,time}]
+function mkCustomChecks(tasks){return tasks.map(()=>[]);}
+function totalCk(p){
+  const base=p.checks.reduce((a,c)=>a+c.length,0);
+  const custom=(p.customChecks||[]).reduce((a,c)=>a+c.length,0);
+  return base+custom;
+}
+function doneCk(p){
+  const base=p.checks.reduce((a,c)=>a+c.filter(Boolean).length,0);
+  const custom=(p.customChecks||[]).reduce((a,c)=>a+c.filter(b=>b.done).length,0);
+  return base+custom;
+}
+function pct(p){const t=totalCk(p);return t?Math.round(doneCk(p)/t*100):0}
+function allAss(p){const ids=[...new Set(p.assignees.flat())];return ids.map(id=>users.find(u=>u.id===id)).filter(Boolean)}
+
+// ── NOTIFICATIONS ──────────────────────────────────────────────────────────
+let notifs=[];let nextNid=1;
+function addNotif(msg){
+  notifs.unshift({id:nextNid++,msg,time:new Date(),read:false});
+  const unread=notifs.filter(n=>!n.read).length;
+  const el=document.getElementById('notifCount');
+  el.style.display=unread>0?'inline-block':'none';
+  el.textContent=unread;
+}
+function renderNotifPanel(){
+  const p=document.getElementById('notifPanel');
+  const inner=notifs.length
+    ?notifs.map(n=>`<div class="notif-item${n.read?'':' unread'}"><div class="notif-dot" style="background:${n.read?'#D0CCC6':'#E24B4A'}"></div><div class="notif-text">${n.msg}</div><div class="notif-time">${timeAgo(n.time)}</div></div>`).join('')
+    :'<div class="notif-empty">No notifications yet</div>';
+  p.innerHTML=`<div class="notif-header"><span>Notifications</span><button class="btn btn-sm" onclick="notifs=[];document.getElementById('notifCount').style.display='none';renderNotifPanel()">Clear</button></div>${inner}`;
+}
+
+// ── PATIENTS ───────────────────────────────────────────────────────────────
+function mkPatient(name,type,value,status,submitted,followUp,ref,notes,checksOverride){
+  const tasks=type==='GA'?T_GA:T_STD;
+  return{
+    id:nextPid++,name,type,value,status,submitted,followUp,ref,notes,
+    checks:checksOverride||mkChecks(tasks),
+    assignees:mkAssignees(tasks),
+    taskNotes:mkNotes(tasks),
+  };
+}
+let nextPid=4;
+let patients=[
+  {id:1,name:'Sarah Mitchell',type:'Standard',value:3200,status:'Application Submitted',submitted:'2026-03-04',followUp:'2026-03-18',ref:'SC-10042',notes:'',checks:mkChecks(T_STD),assignees:mkAssignees(T_STD),taskNotes:mkNotes(T_STD),customChecks:mkCustomChecks(T_STD),dueDates:mkDueDates(T_STD),ckWatchers:mkCkWatchers(T_STD),ckNotes:mkCkNotes(T_STD)},
+  {id:2,name:'James Okonkwo',type:'GA',value:8500,status:'Under Review',submitted:'2026-02-25',followUp:'2026-03-11',ref:'SC-10039',notes:'Awaiting hospital quote',checks:mkChecks(T_GA).map((c,i)=>i<4?c.map(()=>true):c),assignees:mkAssignees(T_GA),taskNotes:mkNotes(T_GA),customChecks:mkCustomChecks(T_GA),dueDates:mkDueDates(T_GA),ckWatchers:mkCkWatchers(T_GA),ckNotes:mkCkNotes(T_GA)},
+  {id:3,name:'Linda Park',type:'Standard',value:2100,status:'Approved',submitted:'2026-02-10',followUp:'2026-02-24',ref:'SC-10031',notes:'',checks:mkChecks(T_STD).map(c=>c.map(()=>true)),assignees:mkAssignees(T_STD),taskNotes:mkNotes(T_STD),customChecks:mkCustomChecks(T_STD),dueDates:mkDueDates(T_STD),ckWatchers:mkCkWatchers(T_STD),ckNotes:mkCkNotes(T_STD)},
+];
+
+const STATUS_COLS=[
+  {key:'Application Submitted',cls:'col-submitted'},
+  {key:'Documents Pending',cls:'col-pending'},
+  {key:'Under Review',cls:'col-review'},
+  {key:'Monitoring',cls:'col-monitoring'},
+  {key:'Approved',cls:'col-approved'},
+  {key:'Pre-Op Surgery',cls:'col-preop'},
+  {key:'Rejected',cls:'col-rejected'},
+  {key:'Treatment Booked',cls:'col-booked'},
+];
+
+const EMAILS=[
+  {label:'Submitted',subject:'Your SuperCare Application Has Been Submitted',body:p=>`Dear ${p.name},\n\nYour SuperCare application has been submitted on ${fd(p.submitted)}.\n\nReference: ${p.ref||'[pending]'}\nTreatment value: $${p.value.toLocaleString()}\n\nApproval typically takes 4–6 weeks. We will keep you updated.\n\nWarm regards,\nMulgrave Dental Group`},
+  {label:'2-week follow-up',subject:'SuperCare Application Update',body:p=>`Dear ${p.name},\n\nFollowing up on your application submitted ${fd(p.submitted)} (Ref: ${p.ref||'[pending]'}).\n\nYour application is currently under review. We'll notify you of any updates.\n\nWarm regards,\nMulgrave Dental Group`},
+  {label:'Approved',subject:'Congratulations on Your Early Release of Superannuation Approval',body:p=>`Dear ${p.name},\n\nCongratulations on your early release of superannuation approval. We have been notified that the ATO has granted you a lump sum approval to commence your dental treatment. We are very excited to hear this news and we are very much looking forward to beginning your treatment journey.\n\nWe would like to now organise an appointment with you to go through your treatment plan, consent forms and answer any questions you may have prior to your treatment appointment(s). Please contact us on 03 9562 5156.\n\nWe have been advised that once you submit your approval letter to your superfund — along with the withdrawal form — you should have the funds within 5–10 working days.\n\nPlease remember that if you need any assistance whatsoever, to contact us on 03 9562 5156 or your My SuperCare Consultant.\n\nWhen the funds are received by you, we request that the approved amount is deposited as a lump sum, so we can then alert My SuperCare who can then report to the ATO as per the release guidelines and legislation. Please note that for ATO Compliance, the released funds must be solely utilised to complete your Dental Treatment Plan within the timeframe as advised by your Dentist. Please note failure to do so will result in a lodgement of Misappropriation of Funds to the ATO.\n\nOur bank details for transfer of payments are as follows:\n\n  Account Name:   Peretrust\n  BSB:            083 269\n  Account No:     57 298 1406\n  Amount:         $${p.value.toLocaleString()}\n\nOnce the funds have been received, please forward the remittance via email or contact us on 03 9562 5156.\n\nPlease be sure to include your name in the description.\n\nWe again congratulate you on your approval and look forward to rebuilding your smile.\n\nWith kind regards,\nMulgrave Dental Group`},
+  {label:'Not approved',subject:'SuperCare Application Outcome',body:p=>`Dear ${p.name},\n\nUnfortunately your SuperCare application (Ref: ${p.ref||'[pending]'}) has not been approved at this time.\n\nPlease contact our team to discuss alternative payment options.\n\nWarm regards,\nMulgrave Dental Group`},
+  {label:'Treatment booked',subject:'Your Treatment Appointment Is Confirmed',body:p=>`Dear ${p.name},\n\nYour treatment appointment has been confirmed. Payment will be processed via your approved SuperCare funding.\n${p.type==='GA'?'\nPlease follow all pre-operative instructions provided.\n':''}\nWarm regards,\nMulgrave Dental Group`},
+  {label:'Chase SuperCare',subject:'URGENT — Status Update Required: ${p.name} (Ref: ${p.ref||"[pending]"}) ',body:p=>`Hi Jeremiah,\n\nHope you\u2019re well! I\u2019m just chasing an update on the below patient \u2014 we\u2019re getting a little anxious on our end and would really appreciate knowing where things are at.\n\nPatient: ${p.name}\nRef: ${p.ref||'[pending]'}\nSubmission date: ${fd(p.submitted)}\nTreatment value: $${p.value.toLocaleString()}\nCurrent status: ${p.status}\n\nCould you please let us know:\n  - What stage is the application currently at?\n  - Are there any outstanding requirements from our end?\n  - What is the expected timeframe for a decision?\n\nThe patient is understandably eager to get started on their treatment, so any update \u2014 even a quick one \u2014 would be hugely appreciated.\n\nThanks so much, Jeremiah \u2014 we really appreciate your help on this one!\n\nWarm regards,\nIzza\nMulgrave Dental Group\n03 9562 5156`},
+];
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+let viewMode='kanban';
+function filtered(){
+  const t=document.getElementById('filterType').value;
+  const s=document.getElementById('filterStatus').value;
+  const a=document.getElementById('filterAssignee').value;
+  return patients.filter(p=>(t?p.type===t:true)&&(s?p.status===s:true)&&(a?p.assignees.flat().includes(a):true));
+}
+function renderAssigneeFilter(){
+  const sel=document.getElementById('filterAssignee'),cur=sel.value;
+  sel.innerHTML='<option value="">All watchers</option>'+users.map(u=>`<option value="${u.id}"${u.id===cur?' selected':''}>${u.name}</option>`).join('');
+}
+function renderStats(){
+  const od=patients.filter(p=>isOD(p.followUp)&&p.status!=='Treatment Booked'&&p.status!=='Rejected').length;
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat"><div class="stat-label">Total patients</div><div class="stat-val">${patients.length}</div></div>
+    <div class="stat"><div class="stat-label">In pipeline</div><div class="stat-val">${patients.filter(p=>['Application Submitted','Documents Pending','Under Review','Monitoring','Approved','Pre-Op Surgery'].includes(p.status)).length}</div></div>
+    <div class="stat"><div class="stat-label">Approved</div><div class="stat-val">${patients.filter(p=>p.status==='Approved').length}</div></div>
+    <div class="stat"><div class="stat-label">Overdue follow-ups</div><div class="stat-val" style="color:${od>0?'#A32D2D':'inherit'}">${od}</div></div>`;
+}
+function renderReminders(){
+  const od=patients.filter(p=>isOD(p.followUp)&&p.status!=='Treatment Booked');
+  const el=document.getElementById('reminders');
+  if(od.length){el.style.display='block';el.innerHTML='<strong>⚑ Follow-up overdue:</strong> '+od.map(p=>`<span style="margin-left:8px">• ${p.name} (${fd(p.followUp)})</span>`).join('');}
+  else el.style.display='none';
+}
+function renderKanban(){
+  const data=filtered();const kb=document.getElementById('kanban');kb.innerHTML='';
+  STATUS_COLS.forEach(({key,cls})=>{
+    const col=document.createElement('div');col.className=`col ${cls}`;
+    const cards=data.filter(p=>p.status===key);
+    col.innerHTML=`<div class="col-head"><span class="col-label">${key}</span><span class="col-count">${cards.length}</span></div>`;
+    cards.forEach(p=>{
+      const pc=pct(p),od=isOD(p.followUp)&&!['Treatment Booked','Rejected'].includes(key),ass=allAss(p);
+      col.innerHTML+=`<div class="card" onclick="openDetail(${p.id})">
+        <div class="card-name">${p.name}</div>
+        <div class="card-meta">
+          <span class="badge ${p.type==='GA'?'badge-ga':'badge-std'}">${p.type}</span>
+          <span>$${p.value.toLocaleString()}</span>
+          ${od?'<span class="badge badge-overdue">Overdue</span>':''}
+        </div>
+        <div class="avatars-row">${ass.map(u=>av(u)).join('')}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pc}%"></div></div>
+        <div style="font-size:10px;color:#6B6B68">${pc}% · ${doneCk(p)}/${totalCk(p)}</div>
+      </div>`;
+    });
+    kb.appendChild(col);
+  });
+}
+function renderList(){
+  const data=filtered();const body=document.getElementById('listBody');body.innerHTML='';
+  data.forEach(p=>{
+    const pc=pct(p),od=isOD(p.followUp)&&p.status!=='Treatment Booked',ass=allAss(p);
+    const tr=document.createElement('tr');tr.style.cursor='pointer';tr.onclick=()=>openDetail(p.id);
+    tr.innerHTML=`<td><strong>${p.name}</strong>${p.ref?`<div style="font-size:10px;color:#6B6B68">${p.ref}</div>`:''}</td>
+      <td><span class="badge ${p.type==='GA'?'badge-ga':'badge-std'}">${p.type}</span></td>
+      <td>$${p.value.toLocaleString()}</td><td>${p.status}</td>
+      <td><div style="display:flex;gap:3px">${ass.map(u=>av(u)).join('')}</div></td>
+      <td style="color:${od?'#A32D2D':'inherit'}">${fd(p.followUp)}${od?' ⚑':''}</td>
+      <td><div class="progress-bar" style="min-width:60px"><div class="progress-fill" style="width:${pc}%"></div></div><div style="font-size:10px;color:#6B6B68">${pc}%</div></td>
+      <td><button class="btn btn-sm" onclick="event.stopPropagation();openDetail(${p.id})">View</button></td>`;
+    body.appendChild(tr);
+  });
+}
+function render(){
+  renderStats();renderReminders();renderAssigneeFilter();
+  if(currentTab==='atm'){renderAtm();return;}
+  if(viewMode==='kanban'){document.getElementById('kanban').style.display='grid';document.getElementById('listView').style.display='none';renderKanban();}
+  else{document.getElementById('kanban').style.display='none';document.getElementById('listView').style.display='block';renderList();}
+}
+
+// ── DETAIL MODAL ───────────────────────────────────────────────────────────
+function openDetail(id){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  const tasks=getTasks(p),d=du(p.followUp);
+  let dueTxt='';
+  if(d!==null){if(d<0)dueTxt=`<span style="color:#A32D2D">${Math.abs(d)}d overdue</span>`;else if(d===0)dueTxt=`<span style="color:#854F0B">Today</span>`;else dueTxt=`<span style="color:#6B6B68">In ${d}d</span>`;}
+
+  // Determine which task indices are unlocked for current stage
+  const curIdx=STATUS_ORDER.indexOf(p.status);
+  const totalTasks=getTasks(p).length;
+
+  // Explicit ownership: which tasks are worked on IN each stage
+  // STD: DocsPending=0, UnderReview=1-5, Monitoring=6, Approved=(none), TreatmentBooked=7
+  // GA:  DocsPending=0, UnderReview=1-6, Monitoring=7, Approved=(none), Pre-Op=8-9+clearance, TreatmentBooked=rest
+  // STD: tasks 0-5 start at Application Submitted, task 6 unlocks at Monitoring, task 7 at Approved
+  const TASK_STAGE_STD={0:'Application Submitted',1:'Application Submitted',2:'Application Submitted',3:'Application Submitted',4:'Application Submitted',5:'Application Submitted',6:'Monitoring',7:'Approved'};
+  // GA: tasks 0-6 start at Application Submitted, task 7 unlocks at Monitoring, tasks 8-9 at Approved, tasks 10-18 at Pre-Op Surgery
+  const TASK_STAGE_GA={0:'Application Submitted',1:'Application Submitted',2:'Application Submitted',3:'Application Submitted',4:'Application Submitted',5:'Application Submitted',6:'Application Submitted',7:'Monitoring',8:'Approved',9:'Approved',10:'Pre-Op Surgery',11:'Pre-Op Surgery',12:'Pre-Op Surgery',13:'Pre-Op Surgery',14:'Pre-Op Surgery',15:'Pre-Op Surgery',16:'Pre-Op Surgery',17:'Pre-Op Surgery',18:'Pre-Op Surgery'};
+  const taskStageMap=p.type==='GA'?TASK_STAGE_GA:TASK_STAGE_STD;
+
+  function isTaskUnlocked(ti){
+    const taskStage=taskStageMap[ti];
+    if(!taskStage)return true;
+    const taskStageIdx=STATUS_ORDER.indexOf(taskStage);
+    return taskStageIdx<=curIdx;
+  }
+
+  // Find the first unlocked, incomplete task to auto-expand
+  const autoOpenTi=tasks.findIndex((_,ti)=>isTaskUnlocked(ti)&&!p.checks[ti].every(Boolean));
+
+  const tasksHtml=tasks.map((t,ti)=>{
+    const unlocked=isTaskUnlocked(ti);
+    const done=p.checks[ti].filter(Boolean).length,total=t.checks.length;
+    const assIds=p.assignees[ti]||[];
+    const assUsers=assIds.map(id=>users.find(u=>u.id===id)).filter(Boolean);
+    const notes=p.taskNotes[ti]||[];
+    const notesHtml=notes.length
+      ?notes.map(n=>`<div class="note-entry"><div class="note-meta">${n.author} · ${n.time}</div><div class="note-text">${n.text}</div></div>`).join('')
+      :'<div style="font-size:11px;color:#A0A09D;margin-bottom:6px">No notes yet.</div>';
+
+    if(!unlocked){
+      return`<div class="task-block" style="opacity:.45;pointer-events:none">
+        <div class="task-header" style="cursor:default">
+          <div class="task-title-row">
+            <span class="task-num">${String(ti+1).padStart(2,'0')}</span>
+            <span class="task-title" style="color:#A0A09D">${t.title}</span>
+            <span style="font-size:10px;color:#A0A09D;margin-left:4px">🔒 locked</span>
+          </div>
+          <span class="task-prog-txt">0/${total}</span>
+        </div>
+      </div>`;
+    }
+
+    // Due date helpers
+    const dueDates=p.dueDates&&p.dueDates[ti]?p.dueDates[ti]:new Array(total).fill('');
+    function ckDueBadge(dd){
+      if(!dd)return'';
+      const d2=Math.round((new Date(dd)-new Date(today()))/(864e5));
+      if(d2<0)return`<span style="font-size:10px;color:#A32D2D;font-weight:600">Overdue</span>`;
+      if(d2===0)return`<span style="font-size:10px;color:#854F0B;font-weight:600">Today</span>`;
+      return`<span style="font-size:10px;color:#6B6B68">${fd(dd)}</span>`;
+    }
+
+    const isAutoOpen=ti===autoOpenTi;
+    return`<div class="task-block">
+      <div class="task-header" onclick="toggleTask('tb_${id}_${ti}','chv_${id}_${ti}')">
+        <div class="task-title-row">
+          <span class="task-num">${String(ti+1).padStart(2,'0')}</span>
+          <span class="task-title">${t.title}</span>
+          <div style="display:flex;gap:2px">${assUsers.map(u=>av(u,16)).join('')}</div>
+        </div>
+        <div class="task-right">
+          <span class="task-prog-txt">${done}/${total}</span>
+          <span class="task-chevron${isAutoOpen?' open':''}" id="chv_${id}_${ti}">▼</span>
+        </div>
+      </div>
+      <div class="task-body${isAutoOpen?' open':''}" id="tb_${id}_${ti}">
+        <div class="assignee-row">
+          <span style="font-size:11px;color:#6B6B68;flex-shrink:0">👁 Watchers:</span>
+          ${assUsers.map(u=>`<span class="user-chip">${av(u,15)} ${u.name} <button class="rm" onclick="removeAss(${id},${ti},'${u.id}')">×</button></span>`).join('')}
+          <select onchange="addAss(${id},${ti},this)" style="font-size:11px;height:26px;border-radius:6px;border:1px solid #D0CCC6;background:#fff;padding:0 6px">
+            <option value="">+ Add watcher</option>
+            ${users.filter(u=>!assIds.includes(u.id)).map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}
+          </select>
+        </div>
+        <div id="sopChecks_${id}_${ti}">
+          ${t.checks.map((item,ci)=>{
+            const dd=dueDates[ci]||'';
+            const isDone=p.checks[ti][ci];
+            const ckWatchIds=(p.ckWatchers&&p.ckWatchers[ti]&&p.ckWatchers[ti][ci])||[];
+            const ckWatchUsers=ckWatchIds.map(uid=>users.find(u=>u.id===uid)).filter(Boolean);
+            const ckNotesList=(p.ckNotes&&p.ckNotes[ti]&&p.ckNotes[ti][ci])||[];
+            const ckNotesHtml=ckNotesList.length
+              ?ckNotesList.map(n=>`<div class="note-entry" style="margin-bottom:4px"><div class="note-meta">${n.author} · ${n.time}</div><div class="note-text">${n.text}</div></div>`).join('')
+              :'<div style="font-size:10px;color:#A0A09D;font-style:italic">No notes yet.</div>';
+            return`<div class="check-item${isDone?' done':''}" id="ck_${id}_${ti}_${ci}" style="flex-direction:column;align-items:stretch;gap:0">
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="checkbox"${isDone?' checked':''} onchange="togCk(${id},${ti},${ci},this.checked)" style="flex-shrink:0;margin-top:0">
+                <span style="flex:1;font-size:12px">${item}</span>
+                <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+                  ${ckDueBadge(dd)}
+                  <input type="date" value="${dd}" onchange="setDueDate(${id},${ti},${ci},this.value)"
+                    title="Due date" style="font-size:10px;padding:2px 5px;border-radius:4px;border:1px solid #D0CCC6;color:#6B6B68;background:${isDone?'#F7F3EE':'#fff'};height:22px;width:110px">
+                  <button onclick="toggleCkDetails('ckd_${id}_${ti}_${ci}')" style="background:none;border:1px solid #D0CCC6;border-radius:4px;font-size:10px;padding:1px 6px;cursor:pointer;color:#6B6B68;white-space:nowrap" title="Assigned & notes">👁 ${ckWatchUsers.length?ckWatchUsers.map(u=>ini(u.name)).join(', '):'+'} ${ckNotesList.length?'· '+ckNotesList.length+'n':''}</button>
+                </div>
+              </div>
+              <div id="ckd_${id}_${ti}_${ci}" style="display:none;margin-top:7px;padding:8px 10px;background:#F7F3EE;border-radius:6px;border:1px solid #E8E4DF">
+                <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+                  <span style="font-size:10px;color:#6B6B68;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Assigned:</span>
+                  ${ckWatchUsers.map(u=>`<span class="user-chip" style="font-size:10px">${av(u,14)} ${u.name} <button class="rm" onclick="removeCkWatcher(${id},${ti},${ci},'${u.id}')">×</button></span>`).join('')}
+                  <select onchange="addCkWatcher(${id},${ti},${ci},this)" style="font-size:10px;height:22px;border-radius:4px;border:1px solid #D0CCC6;background:#fff;padding:0 4px">
+                    <option value="">+ Assign</option>
+                    ${users.filter(u=>!ckWatchIds.includes(u.id)).map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}
+                  </select>
+                </div>
+                <div style="font-size:10px;font-weight:600;color:#6B6B68;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Notes</div>
+                <div id="cknotes_${id}_${ti}_${ci}">${ckNotesHtml}</div>
+                <div style="display:flex;gap:5px;margin-top:6px">
+                  <input id="cknew_${id}_${ti}_${ci}" type="text" placeholder="Add a note..." style="flex:1;font-size:11px;padding:4px 7px;border-radius:4px;border:1px solid #D0CCC6;background:#fff;font-family:inherit;outline:none">
+                  <button class="btn btn-sm btn-blue" style="font-size:10px;height:22px;padding:0 8px" onclick="addCkNote(${id},${ti},${ci})">Add</button>
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+          <div id="customChecks_${id}_${ti}">${(p.customChecks&&p.customChecks[ti]||[]).map((ck,ci)=>`<div class="check-item${ck.done?' done':''}" id="cck_${id}_${ti}_${ci}" style="background:#F0F6FF">
+            <input type="checkbox"${ck.done?' checked':''} onchange="togCustomCk(${id},${ti},${ci},this.checked)">
+            <span style="flex:1">${ck.text}</span>
+            <button onclick="removeCustomCk(${id},${ti},${ci})" style="margin-left:8px;background:none;border:none;cursor:pointer;color:#A0A09D;font-size:12px;padding:0;line-height:1">×</button>
+          </div>`).join('')}</div>
+        </div>
+        <div class="add-check-row" style="display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed #D0CCC6">
+          <input id="newck_${id}_${ti}" type="text" placeholder="+ Add checklist item..." style="flex:1;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #D0CCC6;background:#fff;font-family:inherit;outline:none">
+          <button class="btn btn-sm" style="flex-shrink:0" onclick="addCheckItem(${id},${ti})">Add</button>
+        </div>
+        <div class="task-notes-section">
+          <div class="task-notes-head">Task notes</div>
+          <div id="tnotes_${id}_${ti}">${notesHtml}</div>
+          <div class="note-add-row">
+            <textarea id="tnew_${id}_${ti}" placeholder="Add a note..."></textarea>
+            <button class="btn btn-sm btn-blue" onclick="addTaskNote(${id},${ti})">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('modalBox').innerHTML=`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem">
+      <div>
+        <div style="font-size:16px;font-weight:700">${p.name}</div>
+        <div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap">
+          <span class="badge ${p.type==='GA'?'badge-ga':'badge-std'}">${p.type} pathway</span>
+          <span class="badge" style="background:#F0EDE8;color:#6B6B68">${p.status}</span>
+        </div>
+      </div>
+      <button class="btn btn-sm" onclick="closeModal()">Close</button>
+    </div>
+    <div class="detail-meta">
+      <span><strong>$${p.value.toLocaleString()}</strong></span>
+      ${p.ref?`<span>Ref: <strong>${p.ref}</strong></span>`:''}
+      <span>Submitted: <strong>${fd(p.submitted)}</strong></span>
+      <span>Follow-up: <strong>${fd(p.followUp)}</strong> ${dueTxt}</span>
+    </div>
+    ${p.notes?`<div style="font-size:12px;color:#6B6B68;margin-bottom:.75rem;padding:8px 12px;background:#F7F3EE;border-radius:6px">${p.notes}</div>`:''}
+    <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
+      <select id="detailStatus" style="font-size:12px;height:30px" onchange="updStatus(${p.id},this.value)">
+        ${['Application Submitted','Documents Pending','Under Review','Monitoring','Approved','Pre-Op Surgery','Rejected','Treatment Booked'].map(s=>{
+          const chk=canMove(p,s);
+          const locked=!chk.ok;
+          return`<option value="${s}"${s===p.status?' selected':''}>${locked?'🔒 ':''}${s}</option>`;
+        }).join('')}
+      </select>
+      <button class="btn btn-sm btn-blue" onclick="openEdit(${p.id})">Edit</button>
+      <button class="btn btn-sm btn-notify" onclick="openNotify(${p.id})">🔔 Notify</button>
+      <button class="btn btn-sm btn-red" onclick="delPt(${p.id})">Delete</button>
+    </div>
+    <hr>
+    <div class="section-head">SOP tasks — <span id="ckHead">${doneCk(p)}/${totalCk(p)} checks complete (${pct(p)}%)</span></div>
+    <div class="progress-bar" style="margin-bottom:12px;height:5px"><div class="progress-fill" id="mainProg" style="width:${pct(p)}%;height:5px"></div></div>
+    ${(()=>{
+      // Suggest next stage when all current-stage tasks are done
+      const gate=getGate(p);
+      const curOrder=STATUS_ORDER.indexOf(p.status);
+      const nextStatus=STATUS_ORDER.find((s,si)=>si>curOrder&&s!=='Rejected'&&STATUS_ORDER.indexOf(s)>curOrder);
+      if(!nextStatus)return'';
+      const required=gate[nextStatus]||[];
+      const allDone=required.every(ti=>p.checks[ti]&&p.checks[ti].every(Boolean));
+      if(!allDone)return'';
+      return`<div style="background:#EAF3DE;border:1px solid #97C459;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#27500A;display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <span>✅ All tasks complete — ready to move to <strong>${nextStatus}</strong></span>
+        <button class="btn btn-sm btn-green" onclick="updStatus(${p.id},'${nextStatus}');openDetail(${p.id})">Move now</button>
+      </div>`;
+    })()}
+    <div id="tasksContainer">${tasksHtml}</div>
+    <hr>
+    <div class="section-head" style="margin-bottom:8px">Email templates</div>
+    <div class="email-tabs">${EMAILS.map((t,i)=>`<span class="etab${i===0?' active':''}" onclick="swEmail(${id},${i},this)">${t.label}</span>`).join('')}</div>
+    <div class="email-subject-line" id="esubj">Subject: ${EMAILS[0].subject}</div>
+    <div class="email-preview" id="ebody">${EMAILS[0].body(p)}</div>
+    <button class="btn btn-sm" style="margin-top:8px" id="copyBtn" onclick="cpEmail(${p.id})">Copy email</button>
+  `;
+  document.getElementById('modalOverlay').style.display='flex';
+}
+
+function addCheckItem(pid,ti){
+  const inp=document.getElementById('newck_'+pid+'_'+ti);
+  const txt=inp?inp.value.trim():'';
+  if(!txt)return;
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  if(!p.customChecks)p.customChecks=getTasks(p).map(()=>[]);
+  if(!p.customChecks[ti])p.customChecks[ti]=[];
+  p.customChecks[ti].push({text:txt,done:false});
+  inp.value='';
+  // Re-render just the custom checks container
+  const container=document.getElementById('customChecks_'+pid+'_'+ti);
+  if(container){
+    container.innerHTML=p.customChecks[ti].map((ck,ci)=>`<div class="check-item${ck.done?' done':''}" id="cck_${pid}_${ti}_${ci}" style="background:#F0F6FF">
+      <input type="checkbox"${ck.done?' checked':''} onchange="togCustomCk(${pid},${ti},${ci},this.checked)">
+      <span>${ck.text}</span>
+      <button onclick="removeCustomCk(${pid},${ti},${ci})" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#A0A09D;font-size:12px;padding:0;line-height:1" title="Remove">×</button>
+    </div>`).join('');
+  }
+  updateTaskProgress(pid,ti);
+  render();
+}
+
+function togCustomCk(pid,ti,ci,val){
+  const p=patients.find(x=>x.id===pid);if(!p||!p.customChecks||!p.customChecks[ti])return;
+  p.customChecks[ti][ci].done=val;
+  const el=document.getElementById('cck_'+pid+'_'+ti+'_'+ci);
+  if(el)val?el.classList.add('done'):el.classList.remove('done');
+  updateTaskProgress(pid,ti);
+  render();
+}
+
+function removeCustomCk(pid,ti,ci){
+  const p=patients.find(x=>x.id===pid);if(!p||!p.customChecks||!p.customChecks[ti])return;
+  p.customChecks[ti].splice(ci,1);
+  // Re-render custom checks
+  const container=document.getElementById('customChecks_'+pid+'_'+ti);
+  if(container){
+    container.innerHTML=p.customChecks[ti].map((ck,i)=>`<div class="check-item${ck.done?' done':''}" id="cck_${pid}_${ti}_${i}" style="background:#F0F6FF">
+      <input type="checkbox"${ck.done?' checked':''} onchange="togCustomCk(${pid},${ti},${i},this.checked)">
+      <span>${ck.text}</span>
+      <button onclick="removeCustomCk(${pid},${ti},${i})" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#A0A09D;font-size:12px;padding:0;line-height:1" title="Remove">×</button>
+    </div>`).join('');
+  }
+  updateTaskProgress(pid,ti);
+  render();
+}
+
+function updateTaskProgress(pid,ti){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  const pc=pct(p);
+  const mp=document.getElementById('mainProg');if(mp)mp.style.width=pc+'%';
+  const ht=document.getElementById('ckHead');if(ht)ht.textContent=`${doneCk(p)}/${totalCk(p)} checks complete (${pc}%)`;
+  const tasks=getTasks(p);
+  const ti2=ti;
+  const sopDone=p.checks[ti2].filter(Boolean).length;
+  const customDone=(p.customChecks&&p.customChecks[ti2]||[]).filter(x=>x.done).length;
+  const sopTotal=p.checks[ti2].length;
+  const customTotal=(p.customChecks&&p.customChecks[ti2]||[]).length;
+  const total=sopTotal+customTotal;
+  const done=sopDone+customDone;
+  const progEl=document.querySelector('#tb_'+pid+'_'+ti2+' .task-prog-txt') ||
+               document.querySelector('[id="chv_'+pid+'_'+ti2+'"]')?.previousElementSibling;
+  if(progEl)progEl.textContent=done+'/'+total;
+}
+
+// ── PER-CHECKLIST ITEM WATCHER & NOTES ──────────────────────────────────────
+function toggleCkDetails(elId){
+  const el=document.getElementById(elId);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function addCkWatcher(pid,ti,ci,sel){
+  const uid=sel.value;if(!uid)return;
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  if(!p.ckWatchers)p.ckWatchers=mkCkWatchers(getTasks(p));
+  if(!p.ckWatchers[ti])p.ckWatchers[ti]=getTasks(p)[ti].checks.map(()=>[]);
+  if(!p.ckWatchers[ti][ci])p.ckWatchers[ti][ci]=[];
+  if(!p.ckWatchers[ti][ci].includes(uid))p.ckWatchers[ti][ci].push(uid);
+  const u=users.find(x=>x.id===uid);
+  if(u)addNotif(`${u.name} assigned to "${getTasks(p)[ti].checks[ci]}" on ${p.name}`);
+  openDetail(pid);
+}
+
+function removeCkWatcher(pid,ti,ci,uid){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  if(p.ckWatchers&&p.ckWatchers[ti]&&p.ckWatchers[ti][ci])
+    p.ckWatchers[ti][ci]=p.ckWatchers[ti][ci].filter(id=>id!==uid);
+  openDetail(pid);
+}
+
+function addCkNote(pid,ti,ci){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  const inp=document.getElementById(`cknew_${pid}_${ti}_${ci}`);
+  if(!inp)return;
+  const txt=inp.value.trim();if(!txt)return;
+  if(!p.ckNotes)p.ckNotes=mkCkNotes(getTasks(p));
+  if(!p.ckNotes[ti])p.ckNotes[ti]=getTasks(p)[ti].checks.map(()=>[]);
+  if(!p.ckNotes[ti][ci])p.ckNotes[ti][ci]=[];
+  p.ckNotes[ti][ci].push({text:txt,author:'Izza',time:now()});
+  // Update inline
+  const container=document.getElementById(`cknotes_${pid}_${ti}_${ci}`);
+  if(container){
+    container.innerHTML=p.ckNotes[ti][ci].map(n=>`<div class="note-entry" style="margin-bottom:4px"><div class="note-meta">${n.author} · ${n.time}</div><div class="note-text">${n.text}</div></div>`).join('');
+  }
+  inp.value='';
+  addNotif(`Note added to checklist item on ${p.name}`);
+}
+
+function setDueDate(pid,ti,ci,val){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  if(!p.dueDates)p.dueDates=mkDueDates(getTasks(p));
+  if(!p.dueDates[ti])p.dueDates[ti]=new Array(getTasks(p)[ti].checks.length).fill('');
+  p.dueDates[ti][ci]=val;
+  // Update the badge inline without re-rendering whole modal
+  const ck=document.getElementById(`ck_${pid}_${ti}_${ci}`);
+  if(ck){
+    const d2=val?Math.round((new Date(val)-new Date(today()))/(864e5)):null;
+    let badge='';
+    if(d2!==null){if(d2<0)badge='<span style="font-size:10px;color:#A32D2D;font-weight:600">Overdue</span>';else if(d2===0)badge='<span style="font-size:10px;color:#854F0B;font-weight:600">Today</span>';else badge=`<span style="font-size:10px;color:#6B6B68">${fd(val)}</span>`;}
+    const badgeEl=ck.querySelector('.due-badge');
+    if(badgeEl)badgeEl.innerHTML=badge;
+  }
+}
+
+function toggleTask(tbId,chvId){
+  const el=document.getElementById(tbId),chv=document.getElementById(chvId);
+  if(!el)return;el.classList.toggle('open');if(chv)chv.classList.toggle('open');
+}
+
+function addTaskNote(pid,ti){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  const inp=document.getElementById(`tnew_${pid}_${ti}`);
+  const txt=inp.value.trim();if(!txt)return;
+  if(!p.taskNotes[ti])p.taskNotes[ti]=[];
+  const tasks=getTasks(p);
+  p.taskNotes[ti].push({text:txt,time:now(),author:'Izza'});
+  addNotif(`Note added to "${tasks[ti].title}" for ${p.name}`);
+  const container=document.getElementById(`tnotes_${pid}_${ti}`);
+  if(container){
+    container.innerHTML=p.taskNotes[ti].map(n=>`<div class="note-entry"><div class="note-meta">${n.author} · ${n.time}</div><div class="note-text">${n.text}</div></div>`).join('');
+  }
+  inp.value='';
+}
+
+function addAss(pid,ti,sel){
+  const uid=sel.value;if(!uid)return;
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  if(!p.assignees[ti].includes(uid))p.assignees[ti].push(uid);
+  const u=users.find(x=>x.id===uid);
+  if(u)addNotif(`${u.name} added as watcher on "${getTasks(p)[ti].title}" for ${p.name}`);
+  openDetail(pid);
+}
+function removeAss(pid,ti,uid){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  p.assignees[ti]=p.assignees[ti].filter(id=>id!==uid);
+  openDetail(pid);
+}
+function togCk(pid,ti,ci,val){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  p.checks[ti][ci]=val;
+  const el=document.getElementById(`ck_${pid}_${ti}_${ci}`);
+  if(el)val?el.classList.add('done'):el.classList.remove('done');
+  const pc=pct(p);
+  const mp=document.getElementById('mainProg');if(mp){mp.style.width=pc+'%';}
+  const ht=document.getElementById('ckHead');if(ht)ht.textContent=`${doneCk(p)}/${totalCk(p)} checks complete (${pc}%)`;
+  const tasks=getTasks(p);
+  if(val&&p.checks[ti].every(Boolean))addNotif(`Task "${tasks[ti].title}" completed for ${p.name}`);
+  render();
+}
+const STATUS_ORDER=['Application Submitted','Documents Pending','Under Review','Monitoring','Approved','Pre-Op Surgery','Rejected','Treatment Booked'];
+// STD: task indices required before entering each stage
+// s1=eligibility, s2=docs, s3=submit, s4=update record, s5=teams board, s6=TC task, s7=monitor, s8=booking
+const STAGE_GATE_STD={
+  'Documents Pending':[0],           // must complete task 0 before entering
+  'Under Review':[0,1,2,3,4,5],      // must complete 0-5
+  'Monitoring':[0,1,2,3,4,5],        // enter with 0-5 done; task 6 is done IN this stage
+  'Approved':[0,1,2,3,4,5,6],        // must have monitored (task 6) before approval
+  'Treatment Booked':[0,1,2,3,4,5,6,7], // all tasks done
+};
+// GA: g1..g10
+const STAGE_GATE_GA={
+  'Documents Pending':[0],               // task 0 done
+  'Under Review':[0,1,2,3,4,5,6],        // tasks 0-6 done
+  'Monitoring':[0,1,2,3,4,5,6],          // enter with 0-6; task 7 done IN this stage
+  'Approved':[0,1,2,3,4,5,6,7],          // must have monitored (task 7) before approval
+  'Pre-Op Surgery':[0,1,2,3,4,5,6,7],    // enter with 0-7; tasks 8-9 done IN pre-op
+  'Treatment Booked':[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18], // all done
+};
+function getGate(p){return p.type==='GA'?STAGE_GATE_GA:STAGE_GATE_STD;}
+function canMove(p,newStatus){
+  const curIdx=STATUS_ORDER.indexOf(p.status);
+  const newIdx=STATUS_ORDER.indexOf(newStatus);
+  if(newIdx<=curIdx||newStatus==='Rejected')return{ok:true};
+  const gate=getGate(p);
+  const required=gate[newStatus];
+  if(!required)return{ok:true};
+  const tasks=getTasks(p);
+  const incomplete=required.filter(ti=>{
+    const sopDone=p.checks[ti]&&p.checks[ti].every(Boolean);
+    const customAll=(p.customChecks&&p.customChecks[ti]||[]).every(x=>x.done);
+    return !(sopDone&&customAll);
+  });
+  if(!incomplete.length)return{ok:true};
+  const names=incomplete.map(ti=>tasks[ti]?`• ${tasks[ti].title}`:'').filter(Boolean);
+  return{ok:false,names,newStatus};
+}
+
+function updStatus(pid,val){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  const old=p.status;
+  if(old===val)return;
+  const check=canMove(p,val);
+  if(!check.ok){
+    // Revert the select back to old value
+    const sel=document.getElementById('detailStatus');
+    if(sel)sel.value=old;
+    showBlockedMsg(pid,val,check.names);
+    return;
+  }
+  p.status=val;
+  addNotif(`${p.name}: ${old} → ${val}`);
+  render();
+  // Refresh badge in modal
+  const badge=document.querySelector('.modal .badge:last-of-type');
+  if(badge)badge.textContent=val;
+}
+
+function showBlockedMsg(pid,targetStatus,names){
+  const existing=document.getElementById('statusBlockMsg');
+  if(existing)existing.remove();
+  const div=document.createElement('div');
+  div.id='statusBlockMsg';
+  div.style.cssText='background:#FCEBEB;border:1px solid #F09595;border-radius:8px;padding:10px 14px;margin-top:8px;font-size:12px;color:#791F1F';
+  div.innerHTML=`<strong>Cannot move to "${targetStatus}"</strong> — complete all checklist items for these tasks first:<br><br>${names.join('<br>')}`;
+  const actions=document.querySelector('#detailStatus')?.parentElement;
+  if(actions)actions.insertAdjacentElement('afterend',div);
+  setTimeout(()=>div.remove(),6000);
+}
+function delPt(pid){
+  if(!confirm('Remove this patient?'))return;
+  patients=patients.filter(x=>x.id!==pid);closeModal();render();
+}
+function closeModal(){document.getElementById('modalOverlay').style.display='none';render();}
+
+// ── NOTIFY ─────────────────────────────────────────────────────────────────
+function openNotify(pid){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  const tasks=getTasks(p);const map={};
+  tasks.forEach((t,ti)=>(p.assignees[ti]||[]).forEach(uid=>{if(!map[uid])map[uid]={user:users.find(u=>u.id===uid),tlist:[]};map[uid].tlist.push(t.title);}));
+  const rows=Object.values(map).filter(x=>x.user).map(({user:u,tlist})=>`
+    <div style="padding:10px 0;border-bottom:1px solid #F0EDE8;display:flex;align-items:flex-start;gap:10px">
+      ${av(u,32)}<div style="flex:1">
+        <div style="font-weight:700;font-size:13px">${u.name}</div>
+        <div style="font-size:11px;color:#6B6B68">${u.email}</div>
+        <div style="font-size:11px;color:#6B6B68;margin-top:2px">${tlist.length} task(s)</div>
+      </div>
+      <button class="btn btn-sm btn-blue" onclick="cpOneNotif(${pid},'${u.id}',this)">Copy email</button>
+    </div>`).join('');
+  document.getElementById('modalBox').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div class="modal-title" style="margin:0">Notify watchers — ${p.name}</div>
+      <button class="btn btn-sm" onclick="openDetail(${pid})">Back</button>
+    </div>
+    <p style="font-size:12px;color:#6B6B68;margin-bottom:1rem">Copy watcher notification emails to paste into Outlook.</p>
+    ${rows||'<p style="color:#6B6B68;font-size:12px">No watchers yet. Open the patient and add watchers to tasks first.</p>'}
+    <hr>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-blue" onclick="cpAllNotifs(${pid})">Copy all</button>
+    </div>
+    <div id="notifResult" style="margin-top:8px;font-size:12px;color:#3B6D11;display:none">Copied!</div>`;
+}
+function cpOneNotif(pid,uid,btn){
+  const p=patients.find(x=>x.id===pid);const u=users.find(x=>x.id===uid);if(!p||!u)return;
+  const tasks=getTasks(p);
+  const myTasks=tasks.filter((_,ti)=>(p.assignees[ti]||[]).includes(uid));
+  const txt=`To: ${u.email}\nSubject: Action Required — SuperCare: ${p.name}\n\nHi ${u.name},\n\nYou have been assigned the following tasks for ${p.name} (Ref: ${p.ref||'[pending]'}, $${p.value.toLocaleString()}):\n\n${myTasks.map((t,i)=>`${i+1}. ${t.title}`).join('\n')}\n\nStatus: ${p.status}\nFollow-up due: ${fd(p.followUp)}\n\nPlease action these tasks as soon as possible.\n\nThank you,\nMulgrave Dental Group`;
+  navigator.clipboard.writeText(txt).then(()=>{addNotif(`Notification copied for ${u.name}`);btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy email',2000);});
+}
+function cpAllNotifs(pid){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  const tasks=getTasks(p);const map={};
+  tasks.forEach((t,ti)=>(p.assignees[ti]||[]).forEach(uid=>{if(!map[uid])map[uid]={user:users.find(u=>u.id===uid),tlist:[]};map[uid].tlist.push(t.title);}));
+  const all=Object.values(map).filter(x=>x.user).map(({user:u,tlist})=>`To: ${u.email}\nSubject: Action Required — SuperCare: ${p.name}\n\nHi ${u.name},\n\nYour assigned tasks for ${p.name}:\n${tlist.map((t,i)=>`${i+1}. ${t}`).join('\n')}\n\nStatus: ${p.status} | Follow-up: ${fd(p.followUp)}\n\nThank you,\nMulgrave Dental Group`).join('\n\n---\n\n');
+  navigator.clipboard.writeText(all).then(()=>{addNotif(`All notifications copied for ${p.name}`);const el=document.getElementById('notifResult');if(el){el.style.display='block';setTimeout(()=>el.style.display='none',3000);}});
+}
+
+// ── EMAIL ──────────────────────────────────────────────────────────────────
+function swEmail(pid,idx,el){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  document.querySelectorAll('.etab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  const t=EMAILS[idx];
+  document.getElementById('esubj').textContent='Subject: '+t.subject;
+  document.getElementById('ebody').textContent=t.body(p);
+}
+function cpEmail(pid){
+  const subj=document.getElementById('esubj').textContent;
+  const body=document.getElementById('ebody').textContent;
+  navigator.clipboard.writeText(subj+'\n\n'+body).then(()=>{const btn=document.getElementById('copyBtn');btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy email',2000);});
+}
+
+// ── ADD / EDIT ─────────────────────────────────────────────────────────────
+function openAdd(){
+  document.getElementById('modalBox').innerHTML=`
+    <div class="modal-title">Add new patient</div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Patient name</label><input id="fn" placeholder="Full name"></div>
+      <div class="form-group"><label>Pathway</label><select id="ft"><option value="Standard">Standard</option><option value="GA">GA</option></select></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Treatment value ($)</label><input id="fv" type="number" placeholder="0"></div>
+      <div class="form-group"><label>SuperCare ref #</label><input id="fr" placeholder="SC-XXXXX"></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Submission date</label><input id="fs" type="date" value="${today()}"></div>
+      <div class="form-group"><label>Follow-up due</label><input id="ff" type="date"></div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="fn2" placeholder="Additional notes..."></textarea></div>
+    <div class="form-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-blue" onclick="saveNew()">Add patient</button></div>`;
+  document.getElementById('modalOverlay').style.display='flex';
+  function autoF(){const s=document.getElementById('fs').value;if(s){const d=new Date(s);d.setDate(d.getDate()+14);document.getElementById('ff').value=d.toISOString().split('T')[0];}}
+  autoF();document.getElementById('fs').addEventListener('change',autoF);
+}
+function openEdit(pid){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  document.getElementById('modalBox').innerHTML=`
+    <div class="modal-title">Edit — ${p.name}</div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Patient name</label><input id="fn" value="${p.name}"></div>
+      <div class="form-group"><label>Pathway</label><select id="ft"><option value="Standard"${p.type==='Standard'?' selected':''}>Standard</option><option value="GA"${p.type==='GA'?' selected':''}>GA</option></select></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Treatment value ($)</label><input id="fv" type="number" value="${p.value}"></div>
+      <div class="form-group"><label>SuperCare ref #</label><input id="fr" value="${p.ref||''}"></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Submission date</label><input id="fs" type="date" value="${p.submitted}"></div>
+      <div class="form-group"><label>Follow-up due</label><input id="ff" type="date" value="${p.followUp}"></div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="fn2">${p.notes||''}</textarea></div>
+    <div class="form-actions"><button class="btn" onclick="openDetail(${pid})">Cancel</button><button class="btn btn-blue" onclick="saveEdit(${pid})">Save</button></div>`;
+}
+function saveNew(){
+  const name=document.getElementById('fn').value.trim();if(!name){alert('Please enter a patient name.');return;}
+  const type=document.getElementById('ft').value,tasks=type==='GA'?T_GA:T_STD;
+  const p={id:nextPid++,name,type,value:parseInt(document.getElementById('fv').value)||0,status:'Application Submitted',submitted:document.getElementById('fs').value,followUp:document.getElementById('ff').value,ref:document.getElementById('fr').value.trim(),notes:document.getElementById('fn2').value.trim(),checks:mkChecks(tasks),assignees:mkAssignees(tasks),taskNotes:mkNotes(tasks),customChecks:mkCustomChecks(tasks),dueDates:mkDueDates(tasks),ckWatchers:mkCkWatchers(tasks),ckNotes:mkCkNotes(tasks)};
+  patients.push(p);addNotif(`New patient added: ${name} (${type})`);closeModal();render();
+}
+function saveEdit(pid){
+  const p=patients.find(x=>x.id===pid);if(!p)return;
+  const nt=document.getElementById('ft').value;
+  if(nt!==p.type){const tasks=nt==='GA'?T_GA:T_STD;p.checks=mkChecks(tasks);p.assignees=mkAssignees(tasks);p.taskNotes=mkNotes(tasks);p.customChecks=mkCustomChecks(tasks);p.dueDates=mkDueDates(tasks);p.ckWatchers=mkCkWatchers(tasks);p.ckNotes=mkCkNotes(tasks);}
+  p.name=document.getElementById('fn').value.trim()||p.name;p.type=nt;
+  p.value=parseInt(document.getElementById('fv').value)||p.value;
+  p.submitted=document.getElementById('fs').value;p.followUp=document.getElementById('ff').value;
+  p.ref=document.getElementById('fr').value.trim();p.notes=document.getElementById('fn2').value.trim();
+  closeModal();render();
+}
+
+// ── USERS ──────────────────────────────────────────────────────────────────
+function openManageUsers(){
+  document.getElementById('modalBox').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div class="modal-title" style="margin:0">Manage users</div>
+      <button class="btn btn-sm" onclick="closeModal()">Close</button>
+    </div>
+    <div id="userList">${users.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F0EDE8">${av(u,32)}<div style="flex:1"><div style="font-weight:700;font-size:13px">${u.name}</div><div style="font-size:11px;color:#6B6B68">${u.email} · ${u.role}</div></div><button class="btn btn-sm btn-red" onclick="removeUser('${u.id}')">Remove</button></div>`).join('')}</div>
+    <hr>
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px">Add new user</div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Name</label><input id="un" placeholder="Full name"></div>
+      <div class="form-group"><label>Role</label><input id="ur" placeholder="e.g. Receptionist, TC"></div>
+    </div>
+    <div class="form-group"><label>Email</label><input id="ue" type="email" placeholder="name@mulgrave.com.au"></div>
+    <div class="form-actions"><button class="btn btn-blue" onclick="addUser()">Add user</button></div>`;
+  document.getElementById('modalOverlay').style.display='flex';
+}
+function addUser(){
+  const name=document.getElementById('un').value.trim();if(!name){alert('Please enter a name.');return;}
+  const role=document.getElementById('ur').value.trim()||'Staff';
+  const email=document.getElementById('ue').value.trim()||name.toLowerCase().replace(/\s+/g,'.')+'@mulgrave.com.au';
+  users.push({id:'u'+nextUid++,name,email,role});
+  addNotif(`New user added: ${name} (${role})`);openManageUsers();render();
+}
+function removeUser(uid){
+  if(!confirm('Remove this user?'))return;
+  users=users.filter(u=>u.id!==uid);
+  patients.forEach(p=>p.assignees=p.assignees.map(arr=>arr.filter(id=>id!==uid)));
+  openManageUsers();render();
+}
+
+// ── EXPORT ─────────────────────────────────────────────────────────────────
+function exportCsv(){
+  const h=['Patient Name','Type','Treatment Value','Status','Submitted','Follow-up Due','Ref #','Notes','Progress %','Assignees'];
+  const rows=patients.map(p=>[p.name,p.type,p.value,p.status,fd(p.submitted),fd(p.followUp),p.ref||'',p.notes||'',pct(p)+'%',allAss(p).map(u=>u.name).join(', ')]);
+  const csv=[h,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='Mulgrave_SuperCare_Tracker.csv';a.click();
+}
+
+// ── EVENTS ─────────────────────────────────────────────────────────────────
+// ── TAB SWITCHING ──────────────────────────────────────────────────────────
+let currentTab='all';
+let atmUserId=users[0]?users[0].id:'';
+
+function switchTab(tab){
+  currentTab=tab;
+  document.getElementById('tabAll').classList.toggle('active',tab==='all');
+  document.getElementById('tabAtm').classList.toggle('active',tab==='atm');
+  document.getElementById('allView').style.display=tab==='all'?'block':'none';
+  document.getElementById('atmView').style.display=tab==='atm'?'block':'none';
+  document.getElementById('toggleView').style.display=tab==='all'?'':'none';
+  if(tab==='atm'){renderAtm();}
+}
+
+function switchAtmUser(uid){
+  atmUserId=uid;
+  const u=users.find(x=>x.id===uid);
+  document.getElementById('atmUserName').textContent=u?u.name:'—';
+  renderAtm();
+}
+
+function populateAtmSelect(){
+  const sel=document.getElementById('atmUserSelect');
+  const cur=sel.value||atmUserId;
+  sel.innerHTML=users.map(u=>`<option value="${u.id}"${u.id===cur?' selected':''}>${u.name}</option>`).join('');
+  if(!atmUserId&&users.length)atmUserId=users[0].id;
+  sel.value=atmUserId;
+  const u=users.find(x=>x.id===atmUserId);
+  document.getElementById('atmUserName').textContent=u?u.name:'—';
+}
+
+function renderAtm(){
+  populateAtmSelect();
+  const uid=atmUserId;
+  if(!uid)return;
+
+  // Collect all tasks assigned to this user across all patients
+  const overdueTasks=[];
+  const todayTasks=[];
+  const completedTasks=[];
+
+  patients.forEach(p=>{
+    const tasks=getTasks(p);
+    tasks.forEach((t,ti)=>{
+      if(!(p.assignees[ti]||[]).includes(uid))return;
+      const isDone=p.checks[ti].every(Boolean);
+      const doneCount=p.checks[ti].filter(Boolean).length;
+      const totalCount=p.checks[ti].length;
+      const fup=p.followUp;
+      const d=du(fup);
+
+      const item={p,t,ti,isDone,doneCount,totalCount,fup,d};
+      if(isDone){
+        completedTasks.push(item);
+      } else if(d!==null&&d<0){
+        overdueTasks.push(item);
+      } else if(d===0){
+        todayTasks.push(item);
+      } else {
+        // upcoming — still show in today if follow-up is today or overdue
+      }
+    });
+  });
+
+  function cardHtml(item,type){
+    const{p,t,ti,isDone,doneCount,totalCount,fup,d}=item;
+    let dueTxt='';
+    if(d!==null){
+      if(d<0)dueTxt=`<span style="color:#A32D2D;font-size:10px">${Math.abs(d)}d overdue</span>`;
+      else if(d===0)dueTxt=`<span style="color:#854F0B;font-size:10px">Due today</span>`;
+      else dueTxt=`<span style="color:#6B6B68;font-size:10px">Follow-up in ${d}d</span>`;
+    }
+    const pc=totalCount?Math.round(doneCount/totalCount*100):0;
+    return`<div class="atm-task-card ${type}">
+      <div class="atm-task-info">
+        <div class="atm-task-title">${t.title}</div>
+        <div class="atm-task-patient">
+          <span class="badge ${p.type==='GA'?'badge-ga':'badge-std'}" style="margin-right:5px">${p.type}</span>
+          ${p.name} · $${p.value.toLocaleString()} · ${p.status}
+        </div>
+        <div class="atm-task-meta">
+          <span style="font-size:10px;color:#6B6B68">${doneCount}/${totalCount} checks</span>
+          <div class="progress-bar" style="width:80px;display:inline-block;vertical-align:middle"><div class="progress-fill" style="width:${pc}%"></div></div>
+          ${dueTxt}
+          ${p.ref?`<span style="font-size:10px;color:#A0A09D">${p.ref}</span>`:''}
+        </div>
+      </div>
+      <button class="btn btn-sm btn-blue" onclick="openDetail(${p.id});setTimeout(()=>openTaskPanel('tb_${p.id}_${ti}','chv_${p.id}_${ti}'),300)">Open task</button>
+    </div>`;
+  }
+
+  document.getElementById('atmOverdueCount').textContent=overdueTasks.length;
+  document.getElementById('atmTodayCount').textContent=todayTasks.length;
+  document.getElementById('atmCompletedCount').textContent=completedTasks.length;
+
+  document.getElementById('atmOverdue').innerHTML=overdueTasks.length
+    ?overdueTasks.map(i=>cardHtml(i,'overdue')).join('')
+    :'<div class="atm-empty">No overdue tasks.</div>';
+
+  document.getElementById('atmToday').innerHTML=todayTasks.length
+    ?todayTasks.map(i=>cardHtml(i,'today')).join('')
+    :'<div class="atm-empty">No tasks due today.</div>';
+
+  document.getElementById('atmCompleted').innerHTML=completedTasks.length
+    ?completedTasks.map(i=>cardHtml(i,'completed')).join('')
+    :'<div class="atm-empty">No completed tasks yet.</div>';
+}
+
+function openTaskPanel(tbId,chvId){
+  const el=document.getElementById(tbId);
+  if(el&&!el.classList.contains('open')){
+    el.classList.add('open');
+    const chv=document.getElementById(chvId);
+    if(chv)chv.classList.add('open');
+  }
+}
+
+document.getElementById('openAdd').onclick=openAdd;
+document.getElementById('exportCsv').onclick=exportCsv;
+document.getElementById('reportBtn').onclick=openReport;
+
+function openReport(){
+  const now2=new Date();
+  const dateStr=now2.toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'});
+  const timeStr=now2.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+
+  // Build per-patient summary
+  const lines=patients.map(p=>{
+    const tasks=getTasks(p);
+    // Get latest task note across all tasks
+    let latestNote=null;
+    let latestTime=0;
+    p.taskNotes.forEach(tnList=>{
+      tnList.forEach(n=>{
+        const t=new Date(n.time).getTime()||0;
+        if(t>latestTime){latestTime=t;latestNote=n;}
+      });
+    });
+    // Get latest checklist item note across all tasks/items
+    if(p.ckNotes){
+      p.ckNotes.forEach(taskNotes=>{
+        if(!taskNotes)return;
+        taskNotes.forEach(itemNotes=>{
+          if(!itemNotes)return;
+          itemNotes.forEach(n=>{
+            const t=new Date(n.time).getTime()||0;
+            if(t>latestTime){latestTime=t;latestNote=n;}
+          });
+        });
+      });
+    }
+    const noteStr=latestNote
+      ?`Latest note (${latestNote.author}, ${latestNote.time}): "${latestNote.text}"`
+      :'No notes recorded.';
+    const pc=pct(p);
+    const ass=allAss(p).map(u=>u.name).join(', ')||'Unassigned';
+    const overdue=isOD(p.followUp)&&!['Treatment Booked','Rejected'].includes(p.status);
+    return`Patient: ${p.name}
+  Type: ${p.type} | Ref: ${p.ref||'[pending]'} | Value: $${p.value.toLocaleString()}
+  Status: ${p.status}${overdue?' ⚠ FOLLOW-UP OVERDUE':''}
+  Submitted: ${fd(p.submitted)} | Follow-up due: ${fd(p.followUp)}
+  Progress: ${pc}% complete (${doneCk(p)}/${totalCk(p)} checks)
+  Watchers: ${ass}
+  ${noteStr}`;
+    }).join('\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n');
+
+  // Summary stats
+  const total=patients.length;
+  const inPipeline=patients.filter(p=>['Application Submitted','Documents Pending','Under Review','Monitoring'].includes(p.status)).length;
+  const approved=patients.filter(p=>p.status==='Approved').length;
+  const preop=patients.filter(p=>p.status==='Pre-Op Surgery').length;
+  const booked=patients.filter(p=>p.status==='Treatment Booked').length;
+  const rejected=patients.filter(p=>p.status==='Rejected').length;
+  const overdue=patients.filter(p=>isOD(p.followUp)&&!['Treatment Booked','Rejected'].includes(p.status)).length;
+
+  const emailBody=`To: [Recipient]
+Subject: SuperCare Patient Status Report — ${dateStr}
+
+Hi,
+
+Please find below the SuperCare patient status report as of ${dateStr} at ${timeStr}.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total patients:        ${total}
+In pipeline:           ${inPipeline}
+Approved:              ${approved}
+Pre-Op Surgery:        ${preop}
+Treatment Booked:      ${booked}
+Rejected:              ${rejected}
+Overdue follow-ups:    ${overdue}${overdue>0?' ⚠':''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PATIENT DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${lines}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This report was generated on ${dateStr} at ${timeStr}.
+
+With kind regards,
+Izza
+Mulgrave Dental Group
+03 9562 5156`;
+
+  // Show modal
+  document.getElementById('modalBox').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div>
+        <div class="modal-title" style="margin:0">Patient Status Report</div>
+        <div style="font-size:11px;color:#6B6B68;margin-top:2px">${dateStr} · ${total} patients</div>
+      </div>
+      <button class="btn btn-sm" onclick="closeModal()">Close</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+      <button class="btn btn-blue btn-sm" onclick="cpReport()">Copy email</button>
+      <button class="btn btn-sm" onclick="document.getElementById('reportFilterStatus').value='';renderReportPreview()">Show all</button>
+      <select id="reportFilterStatus" onchange="renderReportPreview()" style="font-size:11px;height:26px">
+        <option value="">All statuses</option>
+        ${['Application Submitted','Documents Pending','Under Review','Monitoring','Approved','Pre-Op Surgery','Treatment Booked','Rejected'].map(s=>`<option>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div id="reportStats" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:1rem">
+      <div class="stat" style="padding:8px 10px"><div class="stat-label">Total</div><div class="stat-val" style="font-size:18px">${total}</div></div>
+      <div class="stat" style="padding:8px 10px"><div class="stat-label">In pipeline</div><div class="stat-val" style="font-size:18px">${inPipeline}</div></div>
+      <div class="stat" style="padding:8px 10px"><div class="stat-label">Approved</div><div class="stat-val" style="font-size:18px">${approved}</div></div>
+      <div class="stat" style="padding:8px 10px;background:${overdue>0?'#FCEBEB':'var(--color-background-secondary)'}"><div class="stat-label">Overdue</div><div class="stat-val" style="font-size:18px;color:${overdue>0?'#A32D2D':'inherit'}">${overdue}</div></div>
+    </div>
+    <div id="reportPreview" style="background:#F7F3EE;border:1px solid #E8E4DF;border-radius:8px;padding:12px 14px;font-size:11px;font-family:monospace;white-space:pre-wrap;max-height:380px;overflow-y:auto;line-height:1.65;color:#1A1A18"></div>
+    <div id="reportCopied" style="margin-top:8px;font-size:12px;color:#3B6D11;display:none">Copied to clipboard!</div>
+  `;
+  document.getElementById('modalOverlay').style.display='flex';
+
+  // Store email body for copying
+  window._reportEmailBody=emailBody;
+  window._reportPatients=patients;
+  renderReportPreview();
+}
+
+function renderReportPreview(){
+  const statusFilter=document.getElementById('reportFilterStatus')?.value||'';
+  const filtered2=statusFilter?window._reportPatients.filter(p=>p.status===statusFilter):window._reportPatients;
+  const now2=new Date();
+  const dateStr=now2.toLocaleDateString('en-AU',{day:'2-digit',month:'long',year:'numeric'});
+  const timeStr=now2.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+
+  const lines=filtered2.map(p=>{
+    let latestNote=null,latestTime=0;
+    p.taskNotes.forEach(tnList=>tnList.forEach(n=>{const t=new Date(n.time).getTime()||0;if(t>latestTime){latestTime=t;latestNote=n;}}));
+    if(p.ckNotes){p.ckNotes.forEach(taskNotes=>{if(!taskNotes)return;taskNotes.forEach(itemNotes=>{if(!itemNotes)return;itemNotes.forEach(n=>{const t=new Date(n.time).getTime()||0;if(t>latestTime){latestTime=t;latestNote=n;}});});});}
+    const noteStr=latestNote?`Latest note (${latestNote.author}, ${latestNote.time}): "${latestNote.text}"`:'No notes recorded.';
+    const overdue=isOD(p.followUp)&&!['Treatment Booked','Rejected'].includes(p.status);
+    return`Patient: ${p.name}
+  Type: ${p.type} | Ref: ${p.ref||'[pending]'} | Value: $${p.value.toLocaleString()}
+  Status: ${p.status}${overdue?' ⚠ FOLLOW-UP OVERDUE':''}
+  Submitted: ${fd(p.submitted)} | Follow-up due: ${fd(p.followUp)}
+  Progress: ${pct(p)}% (${doneCk(p)}/${totalCk(p)} checks)
+  Watchers: ${allAss(p).map(u=>u.name).join(', ')||'Unassigned'}
+  ${noteStr}`;
+  }).join('\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n');
+
+  const preview=`To: [Recipient]
+Subject: SuperCare Patient Status Report — ${dateStr}${statusFilter?' ('+statusFilter+')':''}
+
+Hi,
+
+Please find below the SuperCare patient status report as of ${dateStr} at ${timeStr}.${statusFilter?'\nFiltered by status: '+statusFilter:''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PATIENT DETAILS (${filtered2.length} patient${filtered2.length!==1?'s':''})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${lines||'No patients match this filter.'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+With kind regards,
+Izza
+Mulgrave Dental Group
+03 9562 5156`;
+
+  window._currentReportText=preview;
+  const el=document.getElementById('reportPreview');
+  if(el)el.textContent=preview;
+}
+
+function cpReport(){
+  const txt=window._currentReportText||window._reportEmailBody||'';
+  navigator.clipboard.writeText(txt).then(()=>{
+    const el=document.getElementById('reportCopied');
+    if(el){el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
+    const btn=document.querySelector('#modalBox .btn-blue.btn-sm');
+    if(btn){btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy email',2000);}
+  });
+}
+document.getElementById('manageUsers').onclick=openManageUsers;
+document.getElementById('toggleView').onclick=function(){viewMode=viewMode==='kanban'?'list':'kanban';this.textContent=viewMode==='kanban'?'List view':'Kanban view';render();};
+document.getElementById('filterType').onchange=render;
+document.getElementById('filterStatus').onchange=render;
+document.getElementById('filterAssignee').onchange=render;
+document.getElementById('modalOverlay').onclick=function(e){if(e.target===this)closeModal();};
+document.getElementById('notifBtn').onclick=function(e){
+  e.stopPropagation();const panel=document.getElementById('notifPanel');
+  const open=panel.style.display==='block';panel.style.display=open?'none':'block';
+  if(!open){notifs.forEach(n=>n.read=true);document.getElementById('notifCount').style.display='none';renderNotifPanel();}
+};
+document.addEventListener('click',e=>{const p=document.getElementById('notifPanel');if(p&&!p.contains(e.target)&&e.target.id!=='notifBtn')p.style.display='none';});
+switchTab('all');
+render();
+</script>
+</body>
+</html>
